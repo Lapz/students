@@ -1,0 +1,65 @@
+use crate::models::{Class, StudentssWithClass,StudentsGradeAndClass};
+use crate::sql_pool::Pool;
+use diesel::prelude::*;
+use rocket::State;
+use rocket_contrib::json::Json;
+
+#[get("/classes")]
+pub fn classes(db_conn: State<Pool>) -> Json<Vec<Class>> {
+    use crate::schema::class::dsl::class;
+
+    let result = class
+        .load::<Class>(&db_conn.inner().get().expect("no connection"))
+        .expect("Error loading posts");
+    Json(result)
+}
+
+
+#[post("/classes",data="<class>")]
+pub fn add_class(db_conn: State<Pool>,class:Class) -> Json<&'static str> {
+    use crate::schema::class::dsl::class;
+
+    let result = class
+        .load::<Class>(&db_conn.inner().get().expect("no connection"))
+        .expect("Error loading posts");
+    Json("Class Sucessfully added")
+}
+
+#[get("/classes/<class_id>")]
+pub fn class(db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentssWithClass>> {
+    use crate::schema::class;
+    use crate::schema::students;
+
+    let result = students::table
+        .inner_join(class::table.on(class::id.eq(students::class_id)))
+        .select((students::id, class::id, students::name, class::teacher))
+        .filter(class::id.eq(class_id))
+        .load::<StudentssWithClass>(&db_conn.inner().get().expect("no connection"))
+        .expect("Error loading posts");
+
+        // Select student.id,student.name,class.teacher from students join class on
+        // class.id = student_class.id where class.id = $class_id;
+
+    Json(result)
+}
+
+
+#[get("/classes/<class_id>/grades")]
+pub fn class_grades(db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentsGradeAndClass>> {
+    use crate::schema::class;
+    use crate::schema::students;
+    use crate::schema::grades;
+
+    let result = students::table
+        .inner_join(class::table.on(class::id.eq(students::class_id)))
+        .inner_join(grades::table.on(grades::id.eq(students::grades_id)))
+        .select((students::id, class::id, students::name, class::teacher,grades::grade))
+        .filter(class::id.eq(class_id))
+        .load::<StudentsGradeAndClass>(&db_conn.inner().get().expect("no connection"))
+        .expect("Error loading posts");
+
+        //select students.id,students.name,class.teacher from students join class on
+        //class.id = students.id join grades on grades.id =students.grades_id;
+
+    Json(result)
+}
