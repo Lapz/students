@@ -1,5 +1,6 @@
 use crate::schema::class;
 use crate::schema::students;
+use crate::schema::users;
 
 #[derive(Queryable, Serialize, Debug, Clone)]
 pub struct Student {
@@ -13,6 +14,13 @@ pub struct Student {
 pub struct Class {
     id: i32,
     teacher: String,
+}
+
+#[derive(Serialize,Deserialize, Insertable)]
+#[table_name="users"]
+pub struct User {
+    username:String,
+    password:String
 }
 
 #[derive(Serialize,Deserialize, Insertable)]

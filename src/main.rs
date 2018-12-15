@@ -11,11 +11,15 @@ extern crate serde_derive;
 
 extern crate dotenv;
 
+#[macro_use]
+extern crate jsonwebtoken as jwt;
+
 mod models;
 mod routes;
 mod schema;
+mod users;
 mod sql_pool;
-
+mod auth;
 use self::sql_pool::init;
 use diesel::prelude::*;
 use dotenv::dotenv;

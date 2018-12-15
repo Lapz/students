@@ -1,12 +1,13 @@
 use crate::models::{Class, StudentssWithClass,StudentsGradeAndClass,NewClass};
 use crate::sql_pool::Pool;
+use crate::auth::ApiKey;
 use diesel::prelude::*;
 
 use rocket::State;
 use rocket_contrib::json::Json;
 
 #[get("/classes")]
-pub fn classes(db_conn: State<Pool>) -> Json<Vec<Class>> {
+pub fn classes(_key:ApiKey,db_conn: State<Pool>) -> Json<Vec<Class>> {
     use crate::schema::class::dsl::class;
 
     let result = class
@@ -17,7 +18,7 @@ pub fn classes(db_conn: State<Pool>) -> Json<Vec<Class>> {
 
 
 #[post("/classes",data="<class>")]
-pub fn add_class(db_conn: State<Pool>,class:Json<NewClass>) -> Json<&'static str> {
+pub fn add_class(_key:ApiKey,db_conn: State<Pool>,class:Json<NewClass>) -> Json<&'static str> {
     use crate::schema::class;
     
     
@@ -30,7 +31,7 @@ pub fn add_class(db_conn: State<Pool>,class:Json<NewClass>) -> Json<&'static str
 }
 
 #[get("/classes/<class_id>")]
-pub fn class(db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentssWithClass>> {
+pub fn class(_key:ApiKey,db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentssWithClass>> {
     use crate::schema::class;
     use crate::schema::students;
 
@@ -49,7 +50,7 @@ pub fn class(db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentssWithClass
 
 
 #[get("/classes/<class_id>/grades")]
-pub fn class_grades(db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentsGradeAndClass>> {
+pub fn class_grades(_key:ApiKey,db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentsGradeAndClass>> {
     use crate::schema::class;
     use crate::schema::students;
     use crate::schema::grades;
