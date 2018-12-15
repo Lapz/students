@@ -6,35 +6,36 @@ use crate::schema::users;
 pub struct Student {
     id: i32,
     class_id: i32,
-    grades_id:i32,
+    grades_id: i32,
     name: String,
 }
 
-#[derive(Queryable, Serialize,Deserialize, Debug, Clone,FromForm)]
+#[derive(Queryable, Serialize, Deserialize, Debug, Clone, FromForm)]
 pub struct Class {
     id: i32,
     teacher: String,
 }
 
-#[derive(Serialize,Deserialize, Insertable)]
-#[table_name="users"]
+#[derive(Serialize, Deserialize,Queryable, Insertable)]
+#[table_name = "users"]
 pub struct User {
-    username:String,
-    password:String
+    id:i32,
+    username: String,
+    password: String,
 }
 
-#[derive(Serialize,Deserialize, Insertable)]
-#[table_name="class"]
+#[derive(Serialize, Deserialize, Insertable)]
+#[table_name = "class"]
 pub struct NewClass {
-    teacher:String
+    teacher: String,
 }
 
-#[derive(Serialize,Deserialize, Insertable)]
-#[table_name="students"]
+#[derive(Serialize, Deserialize, Insertable)]
+#[table_name = "students"]
 pub struct NewStudent {
-    pub class_id:i32,
-    pub grades_id:i32,
-    pub  name:String
+    pub class_id: i32,
+    pub grades_id: i32,
+    pub name: String,
 }
 
 #[derive(Queryable, Serialize, Debug, Clone)]
@@ -58,7 +59,5 @@ pub struct StudentsGradeAndClass {
     class_id: i32,
     student: String,
     teacher: String,
-    grade:i32,
+    grade: i32,
 }
-
-

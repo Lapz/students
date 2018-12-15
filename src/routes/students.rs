@@ -1,12 +1,12 @@
-use crate::models::{Student,NewStudent};
+use crate::auth::ApiKey;
+use crate::models::{NewStudent, Student};
 use crate::sql_pool::Pool;
 use diesel::prelude::{QueryDsl, RunQueryDsl};
 use rocket::State;
 use rocket_contrib::json::Json;
-use crate::auth::ApiKey;
 
 #[get("/students")]
-pub fn students(_key:ApiKey,db_conn: State<Pool>) -> Json<Vec<Student>> {
+pub fn students(_key: ApiKey, db_conn: State<Pool>) -> Json<Vec<Student>> {
     use crate::schema::students::dsl::*;
 
     let result = students
@@ -16,8 +16,12 @@ pub fn students(_key:ApiKey,db_conn: State<Pool>) -> Json<Vec<Student>> {
     Json(result)
 }
 
-#[post("/students",data="<student>")]
-pub fn add_student(_key:ApiKey,db_conn: State<Pool>,student:Json<NewStudent>) -> Json<&'static str> {
+#[post("/students", data = "<student>")]
+pub fn add_student(
+    _key: ApiKey,
+    db_conn: State<Pool>,
+    student: Json<NewStudent>,
+) -> Json<&'static str> {
     use crate::schema::students;
 
     diesel::insert_into(students::table)
@@ -29,7 +33,7 @@ pub fn add_student(_key:ApiKey,db_conn: State<Pool>,student:Json<NewStudent>) ->
 }
 
 #[get("/students/<student_id>")]
-pub fn student(_key:ApiKey,db_conn: State<Pool>, student_id: i32) -> Json<Student> {
+pub fn student(_key: ApiKey, db_conn: State<Pool>, student_id: i32) -> Json<Student> {
     use crate::schema::students::dsl::*;
 
     let result = students
