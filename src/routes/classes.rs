@@ -1,6 +1,7 @@
-use crate::models::{Class, StudentssWithClass,StudentsGradeAndClass};
+use crate::models::{Class, StudentssWithClass,StudentsGradeAndClass,NewClass};
 use crate::sql_pool::Pool;
 use diesel::prelude::*;
+
 use rocket::State;
 use rocket_contrib::json::Json;
 
@@ -16,12 +17,15 @@ pub fn classes(db_conn: State<Pool>) -> Json<Vec<Class>> {
 
 
 #[post("/classes",data="<class>")]
-pub fn add_class(db_conn: State<Pool>,class:Class) -> Json<&'static str> {
-    use crate::schema::class::dsl::class;
+pub fn add_class(db_conn: State<Pool>,class:Json<NewClass>) -> Json<&'static str> {
+    use crate::schema::class;
+    
+    
+    diesel::insert_into(class::table)
+                .values(&class.into_inner())
+                .execute(&db_conn.inner().get().expect("no connection"))
+                .expect("Error loading posts");
 
-    let result = class
-        .load::<Class>(&db_conn.inner().get().expect("no connection"))
-        .expect("Error loading posts");
     Json("Class Sucessfully added")
 }
 

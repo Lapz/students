@@ -40,17 +40,16 @@ fn main() {
     let db_url = env::var("DATABASE_URL").expect("DATA_BASEURL must be set");
     rocket::ignite()
         .manage(init(&db_url))
-        .mount(
-            "/api",
+        .mount("/api",
             routes![
-                root,
-                redirect,
                 routes::students::students,
                 routes::students::student,
-                routes::classes::class,
+                 routes::students::add_student
+            ]
+        ).mount("/api", routes![
+            routes::classes::class,
                 routes::classes::classes,
-                routes::classes::class_grades
-            ],
-        )
-        .launch();
+                routes::classes::class_grades,
+                routes::classes::add_class
+        ]).launch();
 }

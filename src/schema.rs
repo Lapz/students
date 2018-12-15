@@ -21,8 +21,17 @@ table! {
     }
 }
 
+table! {
+    users (id) {
+        id -> Integer,
+        username -> Varchar,
+        password -> Varchar,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     class,
     grades,
     students,
+    users,
 );
