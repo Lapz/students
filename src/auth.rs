@@ -4,15 +4,25 @@ use rocket::request::{self, FromRequest};
 use rocket::{Outcome, Request};
 use std::env;
 
+pub static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
+pub const DB_SALT_COMPONET: [u8; 16] = [
+    0xd6, 0x26, 0x98, 0xda, 0xf4, 0xdc, 0x50, 0x52, 0x24, 0xf2, 0x27, 0xd1, 0xfe, 0x39, 0x01, 0x8a,
+];
+
+pub const NUMBER_ITERATIONS: u32 = 100_000;
+
+const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+pub type Credential = [u8; CREDENTIAL_LEN];
+use crate::sql_pool::Pool;
 
 use rocket::http::RawStr;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ApiKey(pub String);
 
 #[derive(FromForm)]
-pub struct UserLogin<'r> {
-    pub username: &'r RawStr,
-    pub password: &'r RawStr,
+pub struct UserLogin {
+    pub username: String,
+    pub password: String
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
@@ -36,17 +46,4 @@ impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
             Err(_) => Outcome::Failure((Status::Unauthorized, ())),
         }
     }
-}
-
-static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
-pub const DB_SALT_COMPONET:[u8;16] = [0xd6, 0x26, 0x98, 0xda, 0xf4, 0xdc, 0x50, 0x52,
-            0x24, 0xf2, 0x27, 0xd1, 0xfe, 0x39, 0x01, 0x8a];
-const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
-pub type Credential = [u8; CREDENTIAL_LEN];
-use crate::sql_pool::Pool;
-
-pub fn verify_password<'a>(db_pool:Pool,username: &str, attempted_password: &str) -> Result<(), ()> {
-   
-
-    Ok(())
 }

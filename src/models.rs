@@ -16,10 +16,10 @@ pub struct Class {
     teacher: String,
 }
 
-#[derive(Serialize, Deserialize,Queryable, Insertable)]
+#[derive(Serialize, Deserialize, Queryable, Insertable)]
 #[table_name = "users"]
 pub struct User {
-    id:i32,
+    id: i32,
     username: String,
     password: String,
 }

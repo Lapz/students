@@ -13,6 +13,7 @@ dotenv = "*"
 r2d2 = "*"
 jsonwebtoken = "5"
 ring="*"
+rand="*"
 
 [dependencies.rocket_contrib]
 version ="0.4.0"

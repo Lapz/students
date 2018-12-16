@@ -26,6 +26,7 @@ table! {
         id -> Integer,
         username -> Varchar,
         password -> Varchar,
+        salt -> Varchar,
     }
 }
 
