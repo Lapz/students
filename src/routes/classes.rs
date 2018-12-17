@@ -7,7 +7,7 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 #[get("/classes")]
-pub fn classes(_key: ApiKey, db_conn: State<Pool>) -> Json<Vec<Class>> {
+pub fn classes(_key: ApiKey, db_conn: State<'_, Pool>) -> Json<Vec<Class>> {
     use crate::schema::class::dsl::class;
 
     let result = class
@@ -17,7 +17,7 @@ pub fn classes(_key: ApiKey, db_conn: State<Pool>) -> Json<Vec<Class>> {
 }
 
 #[post("/classes", data = "<class>")]
-pub fn add_class(_key: ApiKey, db_conn: State<Pool>, class: Json<NewClass>) -> Json<&'static str> {
+pub fn add_class(_key: ApiKey, db_conn: State<'_, Pool>, class: Json<NewClass>) -> Json<&'static str> {
     use crate::schema::class;
 
     diesel::insert_into(class::table)
@@ -29,7 +29,7 @@ pub fn add_class(_key: ApiKey, db_conn: State<Pool>, class: Json<NewClass>) -> J
 }
 
 #[get("/classes/<class_id>")]
-pub fn class(_key: ApiKey, db_conn: State<Pool>, class_id: i32) -> Json<Vec<StudentssWithClass>> {
+pub fn class(_key: ApiKey, db_conn: State<'_, Pool>, class_id: i32) -> Json<Vec<StudentssWithClass>> {
     use crate::schema::class;
     use crate::schema::students;
 
@@ -49,7 +49,7 @@ pub fn class(_key: ApiKey, db_conn: State<Pool>, class_id: i32) -> Json<Vec<Stud
 #[get("/classes/<class_id>/grades")]
 pub fn class_grades(
     _key: ApiKey,
-    db_conn: State<Pool>,
+    db_conn: State<'_, Pool>,
     class_id: i32,
 ) -> Json<Vec<StudentsGradeAndClass>> {
     use crate::schema::class;

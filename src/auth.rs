@@ -40,7 +40,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
             &jwt::Validation::default(),
         ) {
             Ok(claim) => Outcome::Success(ApiKey(claim.claims.username)),
-            Err(e) => {
+            Err(_) => {
                 Outcome::Failure((Status::Unauthorized, ()))
             },
         }

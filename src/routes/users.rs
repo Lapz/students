@@ -11,7 +11,7 @@ use std::env;
 use chrono::Utc;
 
 #[post("/auth", data = "<user>")]
-pub fn login(user: Form<UserLogin>, db_pool: State<Pool>) -> Result<Json<ApiKey>, String> {
+pub fn login(user: Form<UserLogin>, db_pool: State<'_, Pool>) -> Result<Json<ApiKey>, String> {
     use crate::schema::users;
 
     let res = users::table
@@ -48,7 +48,7 @@ pub fn login(user: Form<UserLogin>, db_pool: State<Pool>) -> Result<Json<ApiKey>
 }
 
 #[post("/auth/create", data = "<user>")]
-pub fn create(_key:ApiKey,user: Form<UserLogin>, db_pool: State<Pool>) -> String {
+pub fn create(_key:ApiKey,user: Form<UserLogin>, db_pool: State<'_, Pool>) -> String {
     use crate::schema::users;
 
     let user = user.into_inner();

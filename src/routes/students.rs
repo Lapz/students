@@ -6,7 +6,7 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 #[get("/students")]
-pub fn students(_key: ApiKey, db_conn: State<Pool>) -> Json<Vec<Student>> {
+pub fn students(_key: ApiKey, db_conn: State<'_, Pool>) -> Json<Vec<Student>> {
     use crate::schema::students::dsl::*;
 
     let result = students
@@ -19,7 +19,7 @@ pub fn students(_key: ApiKey, db_conn: State<Pool>) -> Json<Vec<Student>> {
 #[post("/students", data = "<student>")]
 pub fn add_student(
     _key: ApiKey,
-    db_conn: State<Pool>,
+    db_conn: State<'_, Pool>,
     student: Json<NewStudent>,
 ) -> Json<&'static str> {
     use crate::schema::students;
@@ -33,7 +33,7 @@ pub fn add_student(
 }
 
 #[get("/students/<student_id>")]
-pub fn student(_key: ApiKey, db_conn: State<Pool>, student_id: i32) -> Json<Student> {
+pub fn student(_key: ApiKey, db_conn: State<'_, Pool>, student_id: i32) -> Json<Student> {
     use crate::schema::students::dsl::*;
 
     let result = students

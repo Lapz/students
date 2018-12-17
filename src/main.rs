@@ -9,9 +9,6 @@ extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
 
-extern crate dotenv;
-
-#[macro_use]
 extern crate jsonwebtoken as jwt;
 
 mod auth;
@@ -21,11 +18,8 @@ mod schema;
 mod sql_pool;
 mod users;
 use self::sql_pool::init;
-use diesel::prelude::*;
 use dotenv::dotenv;
 use rocket::response::Redirect;
-use rocket::State;
-use rocket_contrib::json::Json;
 use std::env;
 
 #[get("/")]
