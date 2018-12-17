@@ -24,10 +24,14 @@ table! {
 table! {
     users (id) {
         id -> Integer,
-        username -> Varchar,
-        password -> Varchar,
-        salt -> Varchar,
+        username -> Text,
+        password -> Text,
     }
 }
 
-allow_tables_to_appear_in_same_query!(class, grades, students, users,);
+allow_tables_to_appear_in_same_query!(
+    class,
+    grades,
+    students,
+    users,
+);

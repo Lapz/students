@@ -1,50 +1,34 @@
-use crate::auth::*;
-use crate::auth::{ApiKey, UserLogin};
-use crate::models::Student;
-use crate::models::User;
+
+use crate::auth::{ApiKey, UserLogin,NUMBER_ITERATIONS,Claims};
+
+use crate::models::{NewUser};
 use crate::sql_pool::Pool;
-use diesel::prelude::*;
-use ring::pbkdf2;
+use diesel::prelude::{Connection, ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
 use rocket::request::Form;
 use rocket::State;
 use rocket_contrib::json::Json;
 use std::env;
-use rand::Rng;
-use rand::distributions::Alphanumeric;
+use chrono::Utc;
 
 #[post("/auth", data = "<user>")]
 pub fn login(user: Form<UserLogin>, db_pool: State<Pool>) -> Result<Json<ApiKey>, String> {
     use crate::schema::users;
 
-    
     let res = users::table
         .filter(users::username.eq(user.username.as_str()))
-        .select((users::password, users::salt))
-        .first::<(String, String)>(&db_pool.inner().get().expect("no connection"));
+        .select(users::password)
+        .first::<String>(&db_pool.inner().get().expect("no connection"));
 
     match res {
-        Ok((actual_password, salt)) => {
-            let mut secret: Vec<u8> =
-                Vec::with_capacity(DB_SALT_COMPONET.len() + user.username.len());
-            secret.extend(DB_SALT_COMPONET.as_ref());
-            secret.extend(user.username.as_str().as_bytes());
-
-            if let Err(_) = pbkdf2::verify(
-                DIGEST_ALG,
-                NUMBER_ITERATIONS,
-                &secret,
-                user.username.as_str().as_bytes(),
-                actual_password.as_bytes(),
-            ) {
+        Ok(actual_password) => {
+            if let Err(_) = pbkdf2::pbkdf2_check(&user.password, &actual_password) {
                 Err("invalid password".into())
             } else {
-                #[derive(Serialize, Deserialize)]
-                struct Claims<'a> {
-                    username: &'a str,
-                };
-
+                let username = user.into_inner().username;
+                
                 let claim = Claims {
-                    username: user.username.as_str(),
+                    username,
+                    exp:Utc::now().timestamp() + 10000,
                 };
 
                 let token = jwt::encode(
@@ -59,20 +43,24 @@ pub fn login(user: Form<UserLogin>, db_pool: State<Pool>) -> Result<Json<ApiKey>
                 Ok(Json(ApiKey(token)))
             }
         }
-        Err(_) => Err("unkonw user".into()),
+        Err(_) => Err("unknown user".into()),
     }
 }
 
-fn random_salt() -> String {
-    rand::thread_rng().sample_iter(&Alphanumeric).take(12).collect()
-}
-
-
-#[get("/auth", data = "<user>")]
-pub fn create(user: Form<UserLogin>, db_pool: State<Pool>) -> String {
+#[post("/auth/create", data = "<user>")]
+pub fn create(_key:ApiKey,user: Form<UserLogin>, db_pool: State<Pool>) -> String {
     use crate::schema::users;
 
-    let salt = random_salt();
+    let user = user.into_inner();
+    let username = user.username;
+    let password = pbkdf2::pbkdf2_simple(&user.password, NUMBER_ITERATIONS).unwrap();
 
-    "Err".into()
+    let user = NewUser { username, password };
+
+    diesel::insert_into(users::table)
+        .values(&user)
+        .execute(&db_pool.inner().get().expect("no connection"))
+        .expect("Error loading posts");
+
+    "User Added".into()
 }

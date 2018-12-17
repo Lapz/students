@@ -16,8 +16,7 @@ pub struct Class {
     teacher: String,
 }
 
-#[derive(Serialize, Deserialize, Queryable, Insertable)]
-#[table_name = "users"]
+#[derive(Serialize, Deserialize, Queryable)]
 pub struct User {
     id: i32,
     username: String,
@@ -28,6 +27,13 @@ pub struct User {
 #[table_name = "class"]
 pub struct NewClass {
     teacher: String,
+}
+
+#[derive(Serialize, Deserialize, Insertable)]
+#[table_name = "users"]
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
 }
 
 #[derive(Serialize, Deserialize, Insertable)]

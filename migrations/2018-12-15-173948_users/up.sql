@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    username VARCHAR(12) NOT NULL,
-    password VARCHAR(20) NOT NULL,
-    salt VARCHAR(16) NOT NULL
+    username TEXT NOT NULL,
+    password TEXT NOT NULL
+    
 )
