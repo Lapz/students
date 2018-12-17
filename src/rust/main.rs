@@ -16,8 +16,8 @@ mod models;
 mod routes;
 mod schema;
 mod sql_pool;
-mod users;
-use self::sql_pool::init;
+
+use crate::sql_pool::init;
 use dotenv::dotenv;
 use rocket::response::Redirect;
 use std::env;
