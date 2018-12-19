@@ -1,18 +1,24 @@
+use crate::auth::{ApiKey, Claims, UserLogin, NUMBER_ITERATIONS};
 
-use crate::auth::{ApiKey, UserLogin,NUMBER_ITERATIONS,Claims};
-
-use crate::models::{NewUser};
+use crate::models::NewUser;
 use crate::sql_pool::Pool;
+use chrono::Utc;
 use diesel::prelude::{Connection, ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
+use rocket::http::{Cookie, Cookies};
 use rocket::request::Form;
 use rocket::State;
-use rocket_contrib::json::Json;
+use rocket_contrib::json::JsonValue;
 use std::env;
-use chrono::Utc;
+use rocket::{Outcome, Request};
 
 #[post("/auth", data = "<user>")]
-pub fn login(user: Form<UserLogin>, db_pool: State<'_, Pool>) -> Result<Json<ApiKey>, String> {
+pub fn login(
+    user: Form<UserLogin>,
+    db_pool: State<'_, Pool>,
+) -> Result<JsonValue, JsonValue> {
     use crate::schema::users;
+
+
 
     let res = users::table
         .filter(users::username.eq(user.username.as_str()))
@@ -22,13 +28,18 @@ pub fn login(user: Form<UserLogin>, db_pool: State<'_, Pool>) -> Result<Json<Api
     match res {
         Ok(actual_password) => {
             if let Err(_) = pbkdf2::pbkdf2_check(&user.password, &actual_password) {
-                Err("invalid password".into())
+
+                Err(json!({
+                "msg":"Invalid password",
+                "status":401
+            }))
+                
             } else {
                 let username = user.into_inner().username;
-                
+
                 let claim = Claims {
                     username,
-                    exp:Utc::now().timestamp() + 10000,
+                    exp: Utc::now().timestamp() + 10000,
                 };
 
                 let token = jwt::encode(
@@ -40,15 +51,22 @@ pub fn login(user: Form<UserLogin>, db_pool: State<'_, Pool>) -> Result<Json<Api
                 )
                 .unwrap();
 
-                Ok(Json(ApiKey(token)))
+                Ok(json!({ "key": ApiKey(token),"status":200 }))
             }
         }
-        Err(_) => Err("unknown user".into()),
+        
+        Err(e) => {
+            println!("{}",e);
+            Err(json!({
+                "msg":"Unknown User",
+                "status":401
+            }))
+        },
     }
 }
 
 #[post("/auth/create", data = "<user>")]
-pub fn create(_key:ApiKey,user: Form<UserLogin>, db_pool: State<'_, Pool>) -> String {
+pub fn create(user: Form<UserLogin>, db_pool: State<'_, Pool>) -> String {
     use crate::schema::users;
 
     let user = user.into_inner();

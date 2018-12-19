@@ -9,6 +9,10 @@ extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use]
+
+extern crate rocket_contrib;
+
 extern crate jsonwebtoken as jwt;
 
 mod auth;
