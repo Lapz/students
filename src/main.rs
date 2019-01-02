@@ -9,6 +9,9 @@ extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use]
+extern crate rocket_contrib;
+
 extern crate jsonwebtoken as jwt;
 
 mod auth;
@@ -21,6 +24,9 @@ use crate::sql_pool::init;
 use dotenv::dotenv;
 use rocket::response::Redirect;
 use std::env;
+use rocket::http::Method;
+
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Error};
 
 #[get("/")]
 fn root() -> &'static str {
@@ -36,7 +42,20 @@ fn main() {
     dotenv().ok();
 
     let db_url = env::var("DATABASE_URL").expect("DATA_BASEURL must be set");
+    let (allowed_origins, failed_origins) = AllowedOrigins::some(&["http://localhost:3000/"]);
+    assert!(failed_origins.is_empty());
+
+    // You can also deserialize this
+    let cors = rocket_cors::Cors {
+        allowed_origins: allowed_origins,
+        allowed_methods: vec![Method::Get].into_iter().map(From::from).collect(),
+        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept"]),
+        allow_credentials: true,
+        ..Default::default()
+    };
+
     rocket::ignite()
+        .attach(cors)
         .manage(init(&db_url))
         .mount("/", routes![routes::users::login, routes::users::create])
         .mount(

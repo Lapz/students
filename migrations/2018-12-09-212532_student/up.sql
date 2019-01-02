@@ -18,22 +18,3 @@ CREATE TABLE students (
     name TEXT NOT NULL
 );
 
-
-INSERT INTO grades VALUES(0,95);
-INSERT INTO grades VALUES(1,100);
-
-INSERT INTO students VALUES(
-    0,
-    0,
-    'Lenard'
-);
-
-INSERT INTO students VALUES(
-    0,
-    1,
-    'Andy'
-);
-
-
--- INSERT INTO students VALUES(1,0,'Andy');
-
