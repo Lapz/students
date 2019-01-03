@@ -26,14 +26,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<ApiKey, ()> {
-        let keys: Vec<_> = request.headers().get("Authentication").collect();
+        let mut cookies = request.cookies();
 
-        if keys.len() != 1 {
-            return Outcome::Failure((Status::BadRequest, ()));
-        }
 
-        match jwt::decode::<Claims>(
-            &keys[0],
+
+
+        if let Some(cookie) = cookies.get_private("api") {
+            match jwt::decode::<Claims>(
+            &cookie.value(),
             &env::var("JWT_SECRET")
                 .expect("Secret should be set")
                 .as_bytes(),
@@ -43,6 +43,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
             Err(_) => {
                 Outcome::Failure((Status::Unauthorized, ()))
             },
+        }
+        }else {
+            Outcome::Failure((Status::BadRequest, ()))
         }
     }
 }

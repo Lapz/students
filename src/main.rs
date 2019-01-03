@@ -26,14 +26,21 @@ use rocket::response::Redirect;
 use std::env;
 use rocket::http::Method;
 use rocket_contrib::templates::Template;
+use rocket_contrib::serve::StaticFiles;
 use std::collections::HashMap;
 
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Error};
-
+use crate::auth::ApiKey;
 #[get("/")]
 fn root() -> Template {
     let context:HashMap<(),()> = HashMap::new();
     Template::render("login",&context)
+}
+
+#[get("/dashboard")]
+fn dashboard(_key:ApiKey) -> Template {
+    let context:HashMap<(),()> = HashMap::new();
+    Template::render("dashboard",&context)
 }
 
 #[get("/a")]
@@ -61,7 +68,9 @@ fn main() {
         .attach(cors)
         .attach(Template::fairing())
         .manage(init(&db_url))
-        .mount("/", routes![routes::users::login, routes::users::create])
+        
+        .mount("/", routes![routes::users::login, routes::users::create,root,dashboard])
+        .mount("/",StaticFiles::from("static")) // static assests likes css
         .mount(
             "/api",
             routes![
