@@ -13,6 +13,7 @@ use rocket::{Outcome, Request};
 
 #[post("/auth", data = "<user>")]
 pub fn login(
+    mut cookies:Cookies,
     user: Form<UserLogin>,
     db_pool: State<'_, Pool>,
 ) -> Result<JsonValue, JsonValue> {

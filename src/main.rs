@@ -25,12 +25,15 @@ use dotenv::dotenv;
 use rocket::response::Redirect;
 use std::env;
 use rocket::http::Method;
+use rocket_contrib::templates::Template;
+use std::collections::HashMap;
 
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Error};
 
 #[get("/")]
-fn root() -> &'static str {
-    "Hi you have hit the api"
+fn root() -> Template {
+    let context:HashMap<(),()> = HashMap::new();
+    Template::render("login",&context)
 }
 
 #[get("/a")]
@@ -56,6 +59,7 @@ fn main() {
 
     rocket::ignite()
         .attach(cors)
+        .attach(Template::fairing())
         .manage(init(&db_url))
         .mount("/", routes![routes::users::login, routes::users::create])
         .mount(
