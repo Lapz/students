@@ -11,6 +11,14 @@ const Columns = (props) => {
     )
 }
 
+const Container = (props) => {
+    return (
+        <div className="container">
+            {props.children}
+        </div>
+    )
+}
+
 
 const Column = (props) => {
     return (
@@ -22,6 +30,6 @@ const Column = (props) => {
     )
 }
 
-export {Columns,Column};
+export {Columns,Column,Container};
 
 

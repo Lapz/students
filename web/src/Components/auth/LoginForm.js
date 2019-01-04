@@ -1,6 +1,8 @@
 import React,{Component} from "react";
 import Notification from "../common/Notification";
 import {Redirect} from "react-router";
+import store from "store";
+
 
 class LoginForm extends Component {
     constructor(props) {
@@ -51,6 +53,7 @@ class LoginForm extends Component {
         
                
                 if (response.status === true) {
+                    store.set("loggedIn",true); // we are logged in
                     this.setState({
                         username:"",
                         password:"",
