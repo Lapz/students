@@ -1,5 +1,6 @@
 import React,{Component} from "react";
-import Notification from "./Notification";
+import Notification from "../common/Notification";
+import {Redirect} from "react-router";
 
 class LoginForm extends Component {
     constructor(props) {
@@ -8,7 +9,8 @@ class LoginForm extends Component {
         this.state = {
             username:"",
             password:"",
-            failed:false
+            failed:false,
+            redirect:false,
         };
 
 
@@ -22,7 +24,6 @@ class LoginForm extends Component {
       this.setState({
           [event.target.name]:event.target.value
       });
-
     }
 
     handleClose(event) {
@@ -43,27 +44,33 @@ class LoginForm extends Component {
             response.json()
         ).then(data => 
             {
-                const response = JSON.stringify(data);
-                console.log(response);
 
-                if (response.status == 200) {
+               
+
+                const response = JSON.parse(JSON.stringify(data));
+        
+               
+                if (response.status === true) {
                     this.setState({
                         username:"",
                         password:"",
                         failed:false,
+                        redirect:true,
                     });
+
                 }else {
                     this.setState({
                         username:"",
                         password:"",
                         failed:true,
+                        
                     });
                 }
                 
             }
         )
         .catch(err => {
-            console.log(err);
+            console.debug(err);
             this.setState({
                 username:"",
                 password:"",
@@ -73,6 +80,11 @@ class LoginForm extends Component {
     }
 
     render() {
+
+        if (this.state.redirect) {
+            return (<Redirect to="/dashboard" />)
+        }
+
         return(
 
             <div>
@@ -97,8 +109,8 @@ class LoginForm extends Component {
 
                     <button className="button is-block is-info is-large is-fullwidth" onClick={this.handleClick}>Login</button>
 
-                    
 
+                   
                     
                 </form>
 
@@ -106,7 +118,7 @@ class LoginForm extends Component {
                 {
                     this.state.failed ? (
                     <Notification hidden={false} kind="" handleClose={this.handleClose}>
-                        You could not login
+                       Incorrect Username or Password
                     </Notification>
                     ) : null
                 }

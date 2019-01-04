@@ -9,7 +9,7 @@ use rocket::http::{Cookie, Cookies};
 use rocket::request::Form;
 use rocket::State;
 use rocket::response::Redirect;
-use rocket_contrib::json::JsonValue;
+use rocket_contrib::json::Json;
 use std::env;
 use rocket::{Outcome, Request};
 use std::collections::HashMap;
@@ -18,9 +18,9 @@ use rocket_contrib::templates::Template;
 
 
 #[derive(Serialize)]
-struct TemplateContext {
-    failed:bool,
-    fail_message:&'static str,
+pub struct LoginStatus {
+    status:bool,
+    message:&'static str
 }
 
 #[post("/auth", data = "<user>")]
@@ -28,7 +28,7 @@ pub fn login(
     mut cookies:Cookies,
     user: Form<UserLogin>,
     db_pool: State<'_, Pool>,
-) -> Result<Redirect, Template> {
+) -> Json<LoginStatus> {
     use crate::schema::users;
 
     let res = users::table
@@ -39,12 +39,11 @@ pub fn login(
     match res {
         Ok(actual_password) => {
             if let Err(_) = pbkdf2::pbkdf2_check(&user.password, &actual_password) {
-                let context = TemplateContext {
-                    failed:true,
-                    fail_message:"Incorrect Username or Password"
-                };
-
-                Err(Template::render("login",&context))
+            
+                Json(LoginStatus {
+                    status:false,
+                    message:"Incorrect Username or Password"
+                })
                 
             } else {
                 let username = user.into_inner().username;
@@ -66,19 +65,21 @@ pub fn login(
 
                 cookies.add_private(Cookie::new("api", token.clone()));
 
-                Ok(Redirect::to("dashboard"))
+                Json(LoginStatus {
+                    status:true,
+                    message:"Success"
+                })
             }
         }
         
         Err(e) => {
-            
-            let context = TemplateContext {
-                failed:true,
-                fail_message:"Incorrect Username or Password"
-            };
 
+            println!("{:?}",e);
             
-            Err(Template::render("login",&context))
+            Json(LoginStatus {
+                    status:false,
+                    message:"Incorrect Username or Password"
+            })
         },
     }
 }

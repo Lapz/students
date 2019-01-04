@@ -1,19 +1,16 @@
 import React,{Component} from "react";
-import Section from "./Components/Section";
-import Hero from "./Components/Hero";
-import {Column} from "./Components/Grid";
-import Box from "./Components/Box";
-import LoginForm from "./Components/LoginForm"
+import Section from "../common/Section";
+import Hero from "../common/Hero";
+import {Column} from "../common/Grid";
+import Box from "../common/Box";
+import LoginForm from "./LoginForm";
+import {withRouter} from "react-router"
 
-export default class Login extends Component {
-    constructor(props) {
-        super(props)
-    }
-  
+export default class Login extends Component {  
     render() {
 
         return (
-            <Section className="hero is-success is-fullheight">
+            <Section className="hero is-fullheight">
                 <Hero className="hero-body">
 
                 <div className="container has-text-centered">
