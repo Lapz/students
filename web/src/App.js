@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import {BrowserRouter,Route,Switch} from  "react-router-dom";
 import Login from './Components/auth/Login';
-import Dashboard from './Components/Dashboard';
+import Dashboard from './Components/dashboard/Dashboard';
 import {Redirect} from "react-router";
 import store from "store";
+import Students from './Components/students/Students';
 
 const PrivateRoute = ({component,...rest}) => {
   return (
@@ -41,6 +42,7 @@ class App extends Component {
         <Switch>
             <Route exact path="/" component = {Login} />
             <Route exact path="/dashboard" component ={Dashboard} />
+            <Route exact path="/students" component ={Students} />
             {/* <PrivateRoute exact loggedIn={this.checkLoggedIn} path="/dashboard" component = {Dashboard}/> */}
         </Switch>
       
